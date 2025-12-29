@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -104,7 +104,7 @@ export default function GestionPruebas() {
   };
 
   return (
-    <MainLayout title="Gestión de Pruebas" subtitle="Administra las pruebas disponibles en el laboratorio">
+    <PageLayout title="Gestión de Pruebas" subtitle="Catálogo de pruebas del laboratorio">
       <div className="space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div className="relative w-full sm:w-80">
@@ -279,6 +279,6 @@ export default function GestionPruebas() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 }

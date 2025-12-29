@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,9 +106,9 @@ export default function GestionDoctores() {
   };
 
   return (
-    <MainLayout 
+    <PageLayout 
       title="Gestión de Doctores" 
-      subtitle="Administra los doctores y sus comisiones"
+      subtitle="Médicos y comisiones"
     >
       <div className="space-y-6 animate-fade-in">
         <div className="flex justify-end">
@@ -273,6 +273,6 @@ export default function GestionDoctores() {
           </form>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </PageLayout>
   );
 }

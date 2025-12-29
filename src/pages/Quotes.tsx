@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,8 @@ export default function Quotes() {
   };
 
   return (
-    <MainLayout title="Cotizaciones" subtitle="Lista de cotizaciones pendientes">
-      <div className="space-y-6 animate-fade-in">
+    <PageLayout title="Cotizaciones" subtitle="Presupuestos pendientes">
+      <div className="space-y-6">
         {quotes.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -42,7 +42,7 @@ export default function Quotes() {
             <CardHeader>
               <CardTitle>Cotizaciones</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -85,7 +85,7 @@ export default function Quotes() {
                             onClick={() => navigate(`/nueva-venta?quoteId=${quote.id}`)}
                           >
                             <ArrowRight className="h-4 w-4 mr-1" />
-                            Convertir a Venta
+                            Convertir
                           </Button>
                           <Button
                             size="sm"
@@ -104,6 +104,6 @@ export default function Quotes() {
           </Card>
         )}
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 }

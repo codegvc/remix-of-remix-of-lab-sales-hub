@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -98,13 +98,13 @@ export default function GestionDerivados() {
   };
 
   return (
-    <MainLayout 
+    <PageLayout 
       title="Gestión de Derivados" 
-      subtitle="Administra los laboratorios externos"
+      subtitle="Laboratorios externos"
       headerRight={
-        <Button onClick={openNewModal} className="gap-2">
+        <Button onClick={openNewModal} size="sm" className="gap-2">
           <Plus className="h-4 w-4" />
-          Nuevo Derivado
+          <span className="hidden sm:inline">Nuevo</span>
         </Button>
       }
     >
@@ -346,6 +346,6 @@ export default function GestionDerivados() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </MainLayout>
+    </PageLayout>
   );
 }

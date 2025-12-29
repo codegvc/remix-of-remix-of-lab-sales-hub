@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Button } from '@/components/ui/button';
 import { Test } from '@/types';
@@ -307,7 +307,7 @@ export default function Tests() {
   };
 
   return (
-    <MainLayout title="Pruebas" subtitle="Matriz de pruebas por cliente">
+    <PageLayout title="Pruebas Pendientes" subtitle="Matriz de pruebas por cliente">
       <div className="space-y-6 animate-fade-in">
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-2 border-b border-border pb-4">
@@ -632,6 +632,6 @@ export default function Tests() {
           </DialogContent>
         </Dialog>
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 }

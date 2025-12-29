@@ -1,10 +1,10 @@
 import { useParams, Link } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, FileText, Package, CreditCard } from 'lucide-react';
+import { User, FileText, Package, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SaleDetail() {
@@ -22,33 +22,26 @@ export default function SaleDetail() {
 
   if (!sale) {
     return (
-      <MainLayout title="Venta no encontrada">
+      <PageLayout title="Venta no encontrada">
         <div className="text-center py-12">
           <p className="text-muted-foreground">No se encontró la venta</p>
           <Link to="/ventas">
             <Button className="mt-4">Volver a Ventas</Button>
           </Link>
         </div>
-      </MainLayout>
+      </PageLayout>
     );
   }
 
   return (
-    <MainLayout title={`Venta ${sale.id.slice(0, 8)}`} subtitle="Detalle de la venta">
-      <div className="space-y-6 animate-fade-in">
-        <Link to="/ventas">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </Button>
-        </Link>
-
-        <div className="grid gap-6 lg:grid-cols-3">
+    <PageLayout title={`Venta ${sale.id.slice(0, 8)}`} subtitle="Detalle de la orden">
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* Client Info */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <User className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <User className="h-4 w-4 text-primary" />
                 Cliente
               </CardTitle>
             </CardHeader>
@@ -70,9 +63,9 @@ export default function SaleDetail() {
 
           {/* Sale Info */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileText className="h-4 w-4 text-primary" />
                 Información
               </CardTitle>
             </CardHeader>
@@ -106,14 +99,14 @@ export default function SaleDetail() {
         {/* Payment Info */}
         {sale.payment && (
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CreditCard className="h-4 w-4 text-primary" />
                 Información de Pago
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-4">
+              <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Monto Pagado</p>
                   <p className="font-semibold text-success">Bs {sale.payment.amountPaid}</p>
@@ -149,46 +142,30 @@ export default function SaleDetail() {
 
         {/* Tests List */}
         <Card>
-          <CardHeader>
-            <CardTitle>Pruebas de la Venta</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Pruebas de la Venta</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-lg border border-border overflow-hidden">
+          <CardContent className="overflow-x-auto">
+            <div className="rounded-lg border border-border overflow-hidden min-w-[600px]">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                      Prueba
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                      Categoría
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                      Estado
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                      Resultado
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                      Entrega
-                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Prueba</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Categoría</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Estado</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Resultado</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Entrega</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {sale.tests.map((test) => (
                     <tr key={test.id}>
-                      <td className="px-4 py-3 font-medium text-foreground">
-                        {test.testName}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground capitalize">
-                        {test.category}
-                      </td>
+                      <td className="px-4 py-3 font-medium text-foreground">{test.testName}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground capitalize">{test.category}</td>
                       <td className="px-4 py-3">
                         <StatusBadge status={test.status} />
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {test.result || '-'}
-                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{test.result || '-'}</td>
                       <td className="px-4 py-3">
                         {test.status === 'completed' ? (
                           test.delivered ? (
@@ -218,6 +195,6 @@ export default function SaleDetail() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 }

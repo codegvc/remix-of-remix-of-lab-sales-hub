@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -257,30 +257,30 @@ export default function NewSale() {
   const selectedTestIds = selectedTests.map(t => t.testId);
 
   return (
-    <MainLayout 
+    <PageLayout 
       title={mode === 'sale' ? 'Nueva Venta' : 'Nueva Cotización'} 
-      subtitle={mode === 'sale' ? 'Registrar una nueva venta con pruebas de laboratorio' : 'Crear una cotización de pruebas'}
+      subtitle={mode === 'sale' ? 'Registrar orden de pruebas' : 'Crear cotización'}
       headerRight={
-        <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
           <Button
             type="button"
             size="sm"
             variant={mode === 'sale' ? 'default' : 'ghost'}
             onClick={() => setMode('sale')}
-            className="gap-2"
+            className="gap-1 h-8 px-3"
           >
             <Receipt className="h-4 w-4" />
-            Venta
+            <span className="hidden sm:inline">Venta</span>
           </Button>
           <Button
             type="button"
             size="sm"
             variant={mode === 'quote' ? 'default' : 'ghost'}
             onClick={() => setMode('quote')}
-            className="gap-2"
+            className="gap-1 h-8 px-3"
           >
             <FileText className="h-4 w-4" />
-            Cotización
+            <span className="hidden sm:inline">Cotización</span>
           </Button>
         </div>
       }
@@ -800,6 +800,6 @@ export default function NewSale() {
           </form>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </PageLayout>
   );
 }

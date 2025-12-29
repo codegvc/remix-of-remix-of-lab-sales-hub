@@ -1,4 +1,4 @@
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, ShoppingCart, FlaskConical, Clock } from 'lucide-react';
@@ -41,14 +41,14 @@ export default function Dashboard() {
   const recentSales = sales.slice(-5).reverse();
 
   return (
-    <MainLayout title="Dashboard" subtitle="Resumen general del laboratorio">
-      <div className="space-y-8 animate-fade-in">
+    <PageLayout title="Dashboard" subtitle="Resumen general del laboratorio">
+      <div className="space-y-8">
         {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.title} className="hover-lift">
+              <Card key={stat.title}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -139,6 +139,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 }

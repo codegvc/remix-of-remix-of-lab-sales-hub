@@ -8,7 +8,8 @@ import {
   FileText,
   Stethoscope,
   Building2,
-  Activity
+  Activity,
+  DollarSign
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,13 @@ const routes = [
     description: 'Administrar fuentes de derivación',
     icon: Building2,
     color: 'from-emerald-500 to-emerald-600',
+  },
+  { 
+    path: '/precios-laboratorios', 
+    label: 'Precios Laboratorios', 
+    description: 'Precios por laboratorio externo',
+    icon: DollarSign,
+    color: 'from-amber-500 to-amber-600',
   },
 ];
 

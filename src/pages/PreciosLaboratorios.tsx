@@ -15,16 +15,35 @@ interface LabPrices {
   };
 }
 
+interface TestPrices {
+  [testId: string]: {
+    price: number | null;
+    derivedPrice: number | null;
+  };
+}
+
 export default function PreciosLaboratorios() {
-  const { tests, derivados } = useData();
+  const { tests, derivados, updateTest } = useData();
   const [labPrices, setLabPrices] = useLocalStorage<LabPrices>('lab-prices', {});
   const [localPrices, setLocalPrices] = useState<LabPrices>({});
+  const [localTestPrices, setLocalTestPrices] = useState<TestPrices>({});
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Initialize local prices from storage
+  // Initialize local prices from storage and tests
   useEffect(() => {
     setLocalPrices(labPrices);
   }, [labPrices]);
+
+  useEffect(() => {
+    const testPrices: TestPrices = {};
+    tests.forEach(test => {
+      testPrices[test.id] = {
+        price: test.price ?? null,
+        derivedPrice: test.derivedPrice ?? null,
+      };
+    });
+    setLocalTestPrices(testPrices);
+  }, [tests]);
 
   const handlePriceChange = (testId: string, labId: string, value: string) => {
     const numValue = value === '' ? null : parseFloat(value);
@@ -39,14 +58,42 @@ export default function PreciosLaboratorios() {
     setHasChanges(true);
   };
 
+  const handleTestPriceChange = (testId: string, field: 'price' | 'derivedPrice', value: string) => {
+    const numValue = value === '' ? null : parseFloat(value);
+    
+    setLocalTestPrices(prev => ({
+      ...prev,
+      [testId]: {
+        ...prev[testId],
+        [field]: numValue,
+      }
+    }));
+    setHasChanges(true);
+  };
+
   const handleSave = () => {
+    // Save lab prices
     setLabPrices(localPrices);
+    
+    // Save test prices to context
+    Object.entries(localTestPrices).forEach(([testId, prices]) => {
+      updateTest(testId, {
+        price: prices.price ?? 0,
+        derivedPrice: prices.derivedPrice ?? undefined,
+      });
+    });
+    
     setHasChanges(false);
     toast.success('Precios actualizados correctamente');
   };
 
   const getPrice = (testId: string, labId: string): string => {
     const price = localPrices[testId]?.[labId];
+    return price !== null && price !== undefined ? price.toString() : '';
+  };
+
+  const getTestPrice = (testId: string, field: 'price' | 'derivedPrice'): string => {
+    const price = localTestPrices[testId]?.[field];
     return price !== null && price !== undefined ? price.toString() : '';
   };
 
@@ -149,6 +196,12 @@ export default function PreciosLaboratorios() {
                     <TableHead className="min-w-[200px] sticky left-0 bg-background z-10">
                       Prueba
                     </TableHead>
+                    <TableHead className="min-w-[110px] text-center bg-primary/5">
+                      Precio
+                    </TableHead>
+                    <TableHead className="min-w-[110px] text-center bg-emerald-500/5">
+                      P. Derivado
+                    </TableHead>
                     {derivados.map((lab) => (
                       <TableHead key={lab.id} className="min-w-[120px] text-center">
                         {lab.name}
@@ -166,6 +219,28 @@ export default function PreciosLaboratorios() {
                             <p className="text-xs text-muted-foreground">({test.abbreviation})</p>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell className="p-2 bg-primary/5">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="--"
+                          value={getTestPrice(test.id, 'price')}
+                          onChange={(e) => handleTestPriceChange(test.id, 'price', e.target.value)}
+                          className="w-full text-center h-9"
+                        />
+                      </TableCell>
+                      <TableCell className="p-2 bg-emerald-500/5">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="--"
+                          value={getTestPrice(test.id, 'derivedPrice')}
+                          onChange={(e) => handleTestPriceChange(test.id, 'derivedPrice', e.target.value)}
+                          className="w-full text-center h-9"
+                        />
                       </TableCell>
                       {derivados.map((lab) => (
                         <TableCell key={lab.id} className="p-2">

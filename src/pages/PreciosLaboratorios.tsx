@@ -4,9 +4,11 @@ import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { DollarSign, Save, Building2 } from 'lucide-react';
+import { DollarSign, Save, Building2, Plus } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface LabPrices {
@@ -23,11 +25,13 @@ interface TestPrices {
 }
 
 export default function PreciosLaboratorios() {
-  const { tests, derivados, updateTest } = useData();
+  const { tests, derivados, updateTest, addDerivado } = useData();
   const [labPrices, setLabPrices] = useLocalStorage<LabPrices>('lab-prices', {});
   const [localPrices, setLocalPrices] = useState<LabPrices>({});
   const [localTestPrices, setLocalTestPrices] = useState<TestPrices>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newLab, setNewLab] = useState({ name: '', phone: '' });
 
   // Initialize local prices from storage and tests
   useEffect(() => {
@@ -97,39 +101,83 @@ export default function PreciosLaboratorios() {
     return price !== null && price !== undefined ? price.toString() : '';
   };
 
-  if (derivados.length === 0) {
-    return (
-      <PageLayout 
-        title="Precios Laboratorios" 
-        subtitle="Tabla de precios por laboratorio externo"
-      >
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No hay laboratorios registrados</h3>
-            <p className="text-muted-foreground">
-              Primero debes registrar laboratorios externos en la sección de Gestión de Derivados
-            </p>
-          </CardContent>
-        </Card>
-      </PageLayout>
-    );
-  }
+  const handleAddLab = () => {
+    if (!newLab.name.trim()) {
+      toast.error('El nombre del laboratorio es requerido');
+      return;
+    }
+    
+    addDerivado({
+      name: newLab.name.trim(),
+      phone: newLab.phone.trim(),
+    });
+    
+    setNewLab({ name: '', phone: '' });
+    setIsDialogOpen(false);
+    toast.success('Laboratorio agregado correctamente');
+  };
+
+  const AddLabDialog = () => (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="gap-2">
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">Agregar Lab</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Agregar Nuevo Laboratorio</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="lab-name">Nombre *</Label>
+            <Input
+              id="lab-name"
+              placeholder="Nombre del laboratorio"
+              value={newLab.name}
+              onChange={(e) => setNewLab(prev => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lab-phone">Teléfono</Label>
+            <Input
+              id="lab-phone"
+              placeholder="Teléfono"
+              value={newLab.phone}
+              onChange={(e) => setNewLab(prev => ({ ...prev, phone: e.target.value }))}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAddLab}>
+              Agregar
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
     <PageLayout 
       title="Precios Laboratorios" 
       subtitle="Tabla de precios por laboratorio externo"
       headerRight={
-        <Button 
-          onClick={handleSave} 
-          size="sm" 
-          className="gap-2"
-          disabled={!hasChanges}
-        >
-          <Save className="h-4 w-4" />
-          <span className="hidden sm:inline">Actualizar</span>
-        </Button>
+        <div className="flex gap-2">
+          <AddLabDialog />
+          <Button 
+            onClick={handleSave} 
+            size="sm" 
+            className="gap-2"
+            disabled={!hasChanges}
+          >
+            <Save className="h-4 w-4" />
+            <span className="hidden sm:inline">Actualizar</span>
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6 animate-fade-in">

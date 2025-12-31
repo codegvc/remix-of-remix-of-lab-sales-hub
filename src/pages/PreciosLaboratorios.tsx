@@ -117,57 +117,53 @@ export default function PreciosLaboratorios() {
     toast.success('Laboratorio agregado correctamente');
   };
 
-  const AddLabDialog = () => (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-2">
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Agregar Lab</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Agregar Nuevo Laboratorio</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="lab-name">Nombre *</Label>
-            <Input
-              id="lab-name"
-              placeholder="Nombre del laboratorio"
-              value={newLab.name}
-              onChange={(e) => setNewLab(prev => ({ ...prev, name: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lab-phone">Teléfono</Label>
-            <Input
-              id="lab-phone"
-              placeholder="Teléfono"
-              value={newLab.phone}
-              onChange={(e) => setNewLab(prev => ({ ...prev, phone: e.target.value }))}
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleAddLab}>
-              Agregar
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <PageLayout 
       title="Precios Laboratorios" 
       subtitle="Tabla de precios por laboratorio externo"
       headerRight={
         <div className="flex gap-2">
-          <AddLabDialog />
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Agregar Lab</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Agregar Nuevo Laboratorio</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="lab-name">Nombre *</Label>
+                  <Input
+                    id="lab-name"
+                    placeholder="Nombre del laboratorio"
+                    value={newLab.name}
+                    onChange={(e) => setNewLab(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lab-phone">Teléfono</Label>
+                  <Input
+                    id="lab-phone"
+                    placeholder="Teléfono"
+                    value={newLab.phone}
+                    onChange={(e) => setNewLab(prev => ({ ...prev, phone: e.target.value }))}
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleAddLab}>
+                    Agregar
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Button 
             onClick={handleSave} 
             size="sm" 

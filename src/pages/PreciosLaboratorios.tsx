@@ -101,6 +101,39 @@ export default function PreciosLaboratorios() {
     return price !== null && price !== undefined ? price.toString() : '';
   };
 
+  // Get all lab prices for a test
+  const getLabPricesForTest = (testId: string): number[] => {
+    return derivados
+      .map(lab => localPrices[testId]?.[lab.id])
+      .filter((p): p is number => p !== null && p !== undefined && p > 0);
+  };
+
+  // Calculate P. Establecido
+  const getPrecioEstablecido = (testId: string): { value: string; isFromLab: boolean } => {
+    const testPrice = localTestPrices[testId]?.price;
+    if (testPrice !== null && testPrice !== undefined && testPrice > 0) {
+      return { value: testPrice.toString(), isFromLab: false };
+    }
+    
+    const labPricesArr = getLabPricesForTest(testId);
+    if (labPricesArr.length > 0) {
+      const maxLabPrice = Math.max(...labPricesArr);
+      return { value: (maxLabPrice + 30).toString(), isFromLab: true };
+    }
+    
+    return { value: '--', isFromLab: false };
+  };
+
+  // Get min and max lab prices for styling
+  const getLabPriceStats = (testId: string): { min: number | null; max: number | null } => {
+    const labPricesArr = getLabPricesForTest(testId);
+    if (labPricesArr.length === 0) return { min: null, max: null };
+    return {
+      min: Math.min(...labPricesArr),
+      max: Math.max(...labPricesArr),
+    };
+  };
+
   const handleAddLab = () => {
     if (!newLab.name.trim()) {
       toast.error('El nombre del laboratorio es requerido');
@@ -240,6 +273,9 @@ export default function PreciosLaboratorios() {
                     <TableHead className="min-w-[200px] sticky left-0 bg-background z-10">
                       Prueba
                     </TableHead>
+                    <TableHead className="min-w-[110px] text-center bg-amber-500/10">
+                      P. Establecido
+                    </TableHead>
                     <TableHead className="min-w-[110px] text-center bg-primary/5">
                       Precio
                     </TableHead>
@@ -254,53 +290,69 @@ export default function PreciosLaboratorios() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tests.map((test) => (
-                    <TableRow key={test.id}>
-                      <TableCell className="font-medium sticky left-0 bg-background z-10">
-                        <div>
-                          <p>{test.name}</p>
-                          {test.abbreviation && (
-                            <p className="text-xs text-muted-foreground">({test.abbreviation})</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="p-2 bg-primary/5">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="--"
-                          value={getTestPrice(test.id, 'price')}
-                          onChange={(e) => handleTestPriceChange(test.id, 'price', e.target.value)}
-                          className="w-full text-center h-9"
-                        />
-                      </TableCell>
-                      <TableCell className="p-2 bg-emerald-500/5">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="--"
-                          value={getTestPrice(test.id, 'derivedPrice')}
-                          onChange={(e) => handleTestPriceChange(test.id, 'derivedPrice', e.target.value)}
-                          className="w-full text-center h-9"
-                        />
-                      </TableCell>
-                      {derivados.map((lab) => (
-                        <TableCell key={lab.id} className="p-2">
+                  {tests.map((test) => {
+                    const precioEstablecido = getPrecioEstablecido(test.id);
+                    const labStats = getLabPriceStats(test.id);
+                    
+                    return (
+                      <TableRow key={test.id}>
+                        <TableCell className="font-medium sticky left-0 bg-background z-10">
+                          <div>
+                            <p>{test.name}</p>
+                            {test.abbreviation && (
+                              <p className="text-xs text-muted-foreground">({test.abbreviation})</p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-2 bg-amber-500/10 text-center">
+                          <span className={`font-semibold ${precioEstablecido.isFromLab ? 'text-blue-600' : ''}`}>
+                            {precioEstablecido.value}
+                          </span>
+                        </TableCell>
+                        <TableCell className="p-2 bg-primary/5">
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
                             placeholder="--"
-                            value={getPrice(test.id, lab.id)}
-                            onChange={(e) => handlePriceChange(test.id, lab.id, e.target.value)}
+                            value={getTestPrice(test.id, 'price')}
+                            onChange={(e) => handleTestPriceChange(test.id, 'price', e.target.value)}
                             className="w-full text-center h-9"
                           />
                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
+                        <TableCell className="p-2 bg-emerald-500/5">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="--"
+                            value={getTestPrice(test.id, 'derivedPrice')}
+                            onChange={(e) => handleTestPriceChange(test.id, 'derivedPrice', e.target.value)}
+                            className="w-full text-center h-9"
+                          />
+                        </TableCell>
+                        {derivados.map((lab) => {
+                          const priceValue = localPrices[test.id]?.[lab.id];
+                          const isMax = priceValue !== null && priceValue !== undefined && priceValue === labStats.max;
+                          const isMin = priceValue !== null && priceValue !== undefined && priceValue === labStats.min && labStats.min !== labStats.max;
+                          
+                          return (
+                            <TableCell key={lab.id} className="p-2">
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="--"
+                                value={getPrice(test.id, lab.id)}
+                                onChange={(e) => handlePriceChange(test.id, lab.id, e.target.value)}
+                                className={`w-full text-center h-9 ${isMax ? 'text-blue-600 font-semibold' : ''} ${isMin ? 'text-green-600 font-semibold' : ''}`}
+                              />
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

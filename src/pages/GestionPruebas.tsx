@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
 export default function GestionPruebas() {
   const { tests, addTest, updateTest, deleteTest } = useData();
@@ -29,6 +30,7 @@ export default function GestionPruebas() {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState<string | null>(null);
+  const [isExternal, setIsExternal] = useState(false);
   const [form, setForm] = useState({
     name: '',
     abbreviation: '',
@@ -46,34 +48,31 @@ export default function GestionPruebas() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.price) {
-      toast.error('Completa todos los campos');
+    if (!form.name || (!isExternal && !form.price)) {
+      toast.error('Completa todos los campos requeridos');
       return;
     }
 
+    const testData = {
+      name: form.name,
+      abbreviation: form.abbreviation || undefined,
+      category: form.category,
+      price: form.price ? Number(form.price) : 0,
+      derivedPrice: form.derivedPrice ? Number(form.derivedPrice) : undefined,
+      durationHours: form.durationHours ? Number(form.durationHours) : undefined,
+      isExternal,
+    };
+
     if (editingTest) {
-      updateTest(editingTest, {
-        name: form.name,
-        abbreviation: form.abbreviation || undefined,
-        category: form.category,
-        price: Number(form.price),
-        derivedPrice: form.derivedPrice ? Number(form.derivedPrice) : undefined,
-        durationHours: form.durationHours ? Number(form.durationHours) : undefined,
-      });
+      updateTest(editingTest, testData);
       toast.success('Prueba actualizada');
     } else {
-      addTest({
-        name: form.name,
-        abbreviation: form.abbreviation || undefined,
-        category: form.category,
-        price: Number(form.price),
-        derivedPrice: form.derivedPrice ? Number(form.derivedPrice) : undefined,
-        durationHours: form.durationHours ? Number(form.durationHours) : undefined,
-      });
+      addTest(testData);
       toast.success('Prueba creada');
     }
 
     setForm({ name: '', abbreviation: '', category: 'hematologia', price: '', derivedPrice: '', durationHours: '' });
+    setIsExternal(false);
     setEditingTest(null);
     setIsDialogOpen(false);
   };
@@ -83,10 +82,11 @@ export default function GestionPruebas() {
       name: test.name,
       abbreviation: test.abbreviation || '',
       category: test.category,
-      price: String(test.price),
+      price: test.price ? String(test.price) : '',
       derivedPrice: test.derivedPrice ? String(test.derivedPrice) : '',
       durationHours: test.durationHours ? String(test.durationHours) : '',
     });
+    setIsExternal(test.isExternal || false);
     setEditingTest(test.id);
     setIsDialogOpen(true);
   };
@@ -99,6 +99,7 @@ export default function GestionPruebas() {
 
   const openNewDialog = () => {
     setForm({ name: '', abbreviation: '', category: 'hematologia', price: '', derivedPrice: '', durationHours: '' });
+    setIsExternal(false);
     setEditingTest(null);
     setIsDialogOpen(true);
   };
@@ -164,8 +165,23 @@ export default function GestionPruebas() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50 border">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="isExternal" className="text-sm font-medium cursor-pointer">
+                      Prueba externa (no la hacemos)
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Usará precios de otros laboratorios
+                    </p>
+                  </div>
+                  <Switch
+                    id="isExternal"
+                    checked={isExternal}
+                    onCheckedChange={setIsExternal}
+                  />
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Precio (Bs)</Label>
+                  <Label htmlFor="price">Precio (Bs) {!isExternal && <span className="text-destructive">*</span>}</Label>
                   <Input
                     id="price"
                     type="number"
@@ -173,7 +189,8 @@ export default function GestionPruebas() {
                     step="0.01"
                     value={form.price}
                     onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    placeholder="0.00"
+                    placeholder={isExternal ? "Opcional" : "0.00"}
+                    disabled={isExternal}
                   />
                 </div>
                 <div className="space-y-2">
@@ -185,7 +202,8 @@ export default function GestionPruebas() {
                     step="0.01"
                     value={form.derivedPrice}
                     onChange={(e) => setForm({ ...form, derivedPrice: e.target.value })}
-                    placeholder="Precio más bajo (opcional)"
+                    placeholder={isExternal ? "Opcional" : "Precio más bajo (opcional)"}
+                    disabled={isExternal}
                   />
                 </div>
                 <div className="space-y-2">

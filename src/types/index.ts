@@ -36,6 +36,7 @@ export interface Test {
   price: number;
   derivedPrice?: number; // Precio derivado (más bajo)
   durationHours?: number; // Tiempo de demora en horas
+  isExternal?: boolean; // Indica si la prueba no la hacemos nosotros
 }
 
 export type PaymentType = 'completo' | 'credito';

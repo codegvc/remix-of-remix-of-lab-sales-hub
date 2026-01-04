@@ -275,11 +275,11 @@ export default function PreciosLaboratorios() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 z-20 bg-background">
                   <TableRow>
-                    <TableHead className="min-w-[200px] sticky left-0 bg-background z-10">
+                    <TableHead className="min-w-[200px] sticky left-0 bg-background z-30">
                       Prueba
                     </TableHead>
                     <TableHead className="min-w-[110px] text-center bg-amber-500/10">
@@ -292,7 +292,7 @@ export default function PreciosLaboratorios() {
                       P. Derivado
                     </TableHead>
                     {derivados.map((lab) => (
-                      <TableHead key={lab.id} className="min-w-[120px] text-center">
+                      <TableHead key={lab.id} className="min-w-[120px] text-center bg-background">
                         {lab.name}
                       </TableHead>
                     ))}
@@ -316,11 +316,9 @@ export default function PreciosLaboratorios() {
                         <TableCell className="p-2 bg-amber-500/10 text-center">
                           <span className={`font-semibold ${precioEstablecido.isFromLab ? 'text-blue-600' : ''}`}>
                             {precioEstablecido.precio}
-                            {precioEstablecido.derivado !== '--' && (
-                              <span className="text-muted-foreground font-normal text-sm ml-1">
-                                ({precioEstablecido.derivado})
-                              </span>
-                            )}
+                            <span className="text-muted-foreground font-normal text-sm ml-1">
+                              ({precioEstablecido.derivado})
+                            </span>
                           </span>
                         </TableCell>
                         <TableCell className="p-2 bg-primary/5">

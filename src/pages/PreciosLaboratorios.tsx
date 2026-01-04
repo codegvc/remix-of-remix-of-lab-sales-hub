@@ -108,20 +108,29 @@ export default function PreciosLaboratorios() {
       .filter((p): p is number => p !== null && p !== undefined && p > 0);
   };
 
-  // Calculate P. Establecido
-  const getPrecioEstablecido = (testId: string): { value: string; isFromLab: boolean } => {
+  // Calculate P. Establecido with derived price
+  const getPrecioEstablecido = (testId: string): { precio: string; derivado: string; isFromLab: boolean } => {
     const testPrice = localTestPrices[testId]?.price;
+    const testDerivedPrice = localTestPrices[testId]?.derivedPrice;
+    
     if (testPrice !== null && testPrice !== undefined && testPrice > 0) {
-      return { value: testPrice.toString(), isFromLab: false };
+      const derivadoValue = testDerivedPrice !== null && testDerivedPrice !== undefined && testDerivedPrice > 0
+        ? testDerivedPrice.toString()
+        : '--';
+      return { precio: testPrice.toString(), derivado: derivadoValue, isFromLab: false };
     }
     
     const labPricesArr = getLabPricesForTest(testId);
     if (labPricesArr.length > 0) {
       const maxLabPrice = Math.max(...labPricesArr);
-      return { value: (maxLabPrice + 30).toString(), isFromLab: true };
+      return { 
+        precio: (maxLabPrice + 30).toString(), 
+        derivado: (maxLabPrice + 10).toString(), 
+        isFromLab: true 
+      };
     }
     
-    return { value: '--', isFromLab: false };
+    return { precio: '--', derivado: '--', isFromLab: false };
   };
 
   // Get min and max lab prices for styling
@@ -306,7 +315,12 @@ export default function PreciosLaboratorios() {
                         </TableCell>
                         <TableCell className="p-2 bg-amber-500/10 text-center">
                           <span className={`font-semibold ${precioEstablecido.isFromLab ? 'text-blue-600' : ''}`}>
-                            {precioEstablecido.value}
+                            {precioEstablecido.precio}
+                            {precioEstablecido.derivado !== '--' && (
+                              <span className="text-muted-foreground font-normal text-sm ml-1">
+                                ({precioEstablecido.derivado})
+                              </span>
+                            )}
                           </span>
                         </TableCell>
                         <TableCell className="p-2 bg-primary/5">

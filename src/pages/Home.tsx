@@ -9,7 +9,8 @@ import {
   Stethoscope,
   Building2,
   Activity,
-  DollarSign
+  DollarSign,
+  Send
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,6 +85,13 @@ const routes = [
     description: 'Precios por laboratorio externo',
     icon: DollarSign,
     color: 'from-amber-500 to-amber-600',
+  },
+  { 
+    path: '/pruebas-a-enviar', 
+    label: 'Pruebas A Enviar', 
+    description: 'Pruebas externas pendientes de envío',
+    icon: Send,
+    color: 'from-rose-500 to-rose-600',
   },
 ];
 

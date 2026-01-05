@@ -15,6 +15,7 @@ import GestionPruebas from "./pages/GestionPruebas";
 import GestionDoctores from "./pages/GestionDoctores";
 import GestionDerivados from "./pages/GestionDerivados";
 import PreciosLaboratorios from "./pages/PreciosLaboratorios";
+import PruebasAEnviar from "./pages/PruebasAEnviar";
 import Quotes from "./pages/Quotes";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/gestion-doctores" element={<GestionDoctores />} />
             <Route path="/gestion-derivados" element={<GestionDerivados />} />
             <Route path="/precios-laboratorios" element={<PreciosLaboratorios />} />
+            <Route path="/pruebas-a-enviar" element={<PruebasAEnviar />} />
             <Route path="/cotizaciones" element={<Quotes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

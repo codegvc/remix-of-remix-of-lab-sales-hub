@@ -62,6 +62,7 @@ export default function PruebasAEnviar() {
 
         return {
           saleId: sale.id,
+          saleDate: sale.createdAt,
           clientName: client?.name || sale.clientName,
           clientCode: client?.clientCode || sale.clientCode,
           testId: saleTest.testId,
@@ -95,6 +96,7 @@ export default function PruebasAEnviar() {
           <Table>
             <TableHeader className="sticky top-0 bg-card z-10">
               <TableRow>
+                <TableHead>Fecha</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Código Paciente</TableHead>
                 <TableHead>Prueba</TableHead>
@@ -104,7 +106,7 @@ export default function PruebasAEnviar() {
             <TableBody>
               {externalTestRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                     No hay pruebas externas registradas
                   </TableCell>
                 </TableRow>
@@ -113,6 +115,7 @@ export default function PruebasAEnviar() {
                   const availableLabs = getAvailableLabs(record.testId);
                   return (
                     <TableRow key={`${record.assignmentKey}-${index}`}>
+                      <TableCell>{record.saleDate}</TableCell>
                       <TableCell className="font-medium">{record.clientName}</TableCell>
                       <TableCell>{record.clientCode}</TableCell>
                       <TableCell>{record.testName}</TableCell>
@@ -129,7 +132,7 @@ export default function PruebasAEnviar() {
                               const price = labPrices[record.testId]?.[lab.id];
                               return (
                                 <SelectItem key={lab.id} value={lab.id}>
-                                  {lab.name} {price ? `($${price})` : ''}
+                                  {lab.name} {price ? `(Bs ${price})` : ''}
                                 </SelectItem>
                               );
                             })}

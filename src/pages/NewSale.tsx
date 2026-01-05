@@ -11,6 +11,13 @@ import { TEST_CATEGORIES, SaleTest, Client, TestCategory, PaymentInfo } from '@/
 import { toast } from 'sonner';
 import { UserPlus, ShoppingCart, Search, FileText, Receipt, X, Clock, Calendar, Stethoscope, Plus, Building2 } from 'lucide-react';
 import { format, addHours } from 'date-fns';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+
+interface LabPrices {
+  [testId: string]: {
+    [labId: string]: number | null;
+  };
+}
 import { PaymentModal } from '@/components/PaymentModal';
 import {
   Dialog,
@@ -31,6 +38,7 @@ export default function NewSale() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { clients, tests, doctors, quotes, derivados, deleteQuote, addClient, addSale, addQuote, updateDoctorEarnings, addDoctor, addDerivado, updateDerivadoEarnings } = useData();
+  const [labPrices] = useLocalStorage<LabPrices>('lab-prices', {});
   
   const [mode, setMode] = useState<Mode>('sale');
   const [clientMode, setClientMode] = useState<'new' | 'existing'>('new');
@@ -130,11 +138,38 @@ export default function NewSale() {
     setSelectedTests(prev => prev.filter(t => t.testId !== testId));
   };
 
-  const getTestPrice = (test: typeof tests[0]) => {
-    if (useDerivedPrice && test.derivedPrice) {
-      return test.derivedPrice;
+  // Get all lab prices for a test (same logic as PreciosLaboratorios)
+  const getLabPricesForTest = (testId: string): number[] => {
+    return derivados
+      .map(lab => labPrices[testId]?.[lab.id])
+      .filter((p): p is number => p !== null && p !== undefined && p > 0);
+  };
+
+  // Calculate price for external tests using lab prices
+  const getCalculatedPrice = (test: typeof tests[0], forDerived: boolean = false): number => {
+    // If test has its own price (not external), use it
+    if (test.price > 0) {
+      if (forDerived && test.derivedPrice) {
+        return test.derivedPrice;
+      }
+      return test.price;
     }
-    return test.price;
+    
+    // For external tests, calculate from lab prices
+    const labPricesArr = getLabPricesForTest(test.id);
+    if (labPricesArr.length > 0) {
+      const maxLabPrice = Math.max(...labPricesArr);
+      return forDerived ? (maxLabPrice + 10) : (maxLabPrice + 30);
+    }
+    
+    return 0;
+  };
+
+  const getTestPrice = (test: typeof tests[0]) => {
+    if (useDerivedPrice) {
+      return getCalculatedPrice(test, true);
+    }
+    return getCalculatedPrice(test, false);
   };
 
   const calculateTotal = () => {

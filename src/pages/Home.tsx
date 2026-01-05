@@ -12,7 +12,7 @@ import {
   DollarSign,
   Send
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const routes = [
@@ -122,29 +122,21 @@ export default function Home() {
           <p className="text-muted-foreground mt-2">Selecciona una sección para comenzar</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {routes.map((route) => {
             const Icon = route.icon;
             return (
               <Card 
                 key={route.path}
+                title={route.description}
                 className="group cursor-pointer border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                 onClick={() => navigate(route.path)}
               >
-                <CardHeader className="pb-3">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${route.color} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="h-7 w-7 text-white" />
+                <CardContent className="flex flex-col items-center justify-center py-6 px-3">
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${route.color} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="h-6 w-6 text-white" />
                   </div>
-                  <CardTitle className="text-lg">{route.label}</CardTitle>
-                  <CardDescription>{route.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Button 
-                    variant="ghost" 
-                    className="p-0 h-auto text-primary hover:text-primary/80 hover:bg-transparent font-medium"
-                  >
-                    Abrir →
-                  </Button>
+                  <span className="text-sm font-medium text-center">{route.label}</span>
                 </CardContent>
               </Card>
             );

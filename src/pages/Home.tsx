@@ -91,45 +91,61 @@ export default function Home() {
   const today = new Date().toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary to-primary/80">
       {/* Header */}
-      <header className="bg-gradient-to-b from-primary to-primary/90 text-primary-foreground py-4">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-wide">Laboratorio Clínico Magnus S.R.L.</h1>
-          <p className="text-primary-foreground/80 text-sm mt-2">
-            Av. Oquendo entre Av. Heroinas y calle Colombia acera oeste
-          </p>
-          <p className="text-primary-foreground/80 text-sm">72266960</p>
-          <p className="text-primary-foreground/80 text-sm">Cochabamba - Bolivia</p>
+      <header className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent" />
+        <div className="relative max-w-6xl mx-auto px-6 py-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
+            <Activity className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-wide text-white drop-shadow-lg">
+            Laboratorio Clínico Magnus S.R.L.
+          </h1>
+          <div className="mt-3 space-y-0.5">
+            <p className="text-white/80 text-sm">
+              Av. Oquendo entre Av. Heroinas y calle Colombia acera oeste
+            </p>
+            <p className="text-white/80 text-sm font-medium">72266960 • Cochabamba - Bolivia</p>
+          </div>
         </div>
       </header>
 
       {/* Navigation Bar */}
-      <div className="bg-primary/80 border-y border-primary-foreground/20">
-        <div className="max-w-6xl mx-auto px-6 py-2 flex justify-between items-center text-primary-foreground text-sm">
-          <span>Ver.: 1.0.0</span>
-          <span>{today}</span>
+      <div className="bg-black/10 backdrop-blur-sm border-y border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex justify-between items-center text-white/90 text-sm font-medium">
+          <span className="bg-white/10 px-3 py-1 rounded-full text-xs">Ver. 1.0.0</span>
+          <span className="bg-white/10 px-3 py-1 rounded-full text-xs">{today}</span>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto p-6">
-        <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-          {routes.map((route) => {
+      <main className="max-w-5xl mx-auto p-6 md:p-8">
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {routes.map((route, index) => {
             const Icon = route.icon;
             return (
               <div
                 key={route.path}
                 title={route.description}
-                className="bg-white rounded-sm shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-primary/50 aspect-square flex flex-col items-center justify-center p-3 group"
+                className="group relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
                 onClick={() => navigate(route.path)}
               >
-                <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
-                  <Icon className="w-10 h-10 md:w-14 md:h-14 text-primary" strokeWidth={1.5} />
+                {/* Gradient overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative flex flex-col items-center justify-center p-4 md:p-5">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300 shadow-sm">
+                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary group-hover:text-primary/90 transition-colors" strokeWidth={1.5} />
+                  </div>
+                  <span className="text-xs md:text-sm font-semibold text-center text-foreground leading-tight group-hover:text-primary transition-colors duration-300">
+                    {route.label}
+                  </span>
                 </div>
-                <span className="text-xs md:text-sm font-medium text-center text-foreground leading-tight">
-                  {route.label}
-                </span>
+
+                {/* Bottom accent bar */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
             );
           })}
@@ -137,8 +153,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-4">
-        <p className="text-xs text-primary-foreground/60 text-center">
+      <footer className="mt-auto py-6">
+        <p className="text-sm text-white/60 text-center">
           © 2024 Laboratorio Clínico Magnus S.R.L.
         </p>
       </footer>

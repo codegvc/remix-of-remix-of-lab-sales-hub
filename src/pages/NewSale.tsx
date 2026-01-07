@@ -320,137 +320,135 @@ export default function NewSale() {
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
+      <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-2 animate-fade-in lg:h-full lg:flex lg:flex-col">
         {/* Client Section - Only show in sale mode */}
         {mode === 'sale' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary" />
+          <Card className="lg:py-0">
+            <CardHeader className="py-3 lg:py-2 px-4">
+              <CardTitle className="flex items-center gap-2 text-base lg:text-sm">
+                <UserPlus className="h-4 w-4 text-primary" />
                 Datos del Paciente
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex gap-4">
+            <CardContent className="space-y-3 lg:space-y-2 py-2 lg:py-1 px-4">
+              <div className="flex gap-2">
                 <Button
                   type="button"
+                  size="sm"
                   variant={clientMode === 'new' ? 'default' : 'outline'}
                   onClick={() => setClientMode('new')}
+                  className="h-7 text-xs"
                 >
                   Nuevo Paciente
                 </Button>
                 <Button
                   type="button"
+                  size="sm"
                   variant={clientMode === 'existing' ? 'default' : 'outline'}
                   onClick={() => setClientMode('existing')}
+                  className="h-7 text-xs"
                 >
                   Paciente Existente
                 </Button>
               </div>
 
               {clientMode === 'new' ? (
-                <div className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nombre Completo *</Label>
-                      <Input
-                        id="name"
-                        value={clientForm.name}
-                        onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
-                        placeholder="Ingrese el nombre"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="document">Documento/CI *</Label>
-                      <Input
-                        id="document"
-                        value={clientForm.document}
-                        onChange={(e) => setClientForm({ ...clientForm, document: e.target.value })}
-                        placeholder="Número de documento"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="clientCode">Código Cliente</Label>
-                      <Input
-                        id="clientCode"
-                        value={clientCode}
-                        readOnly
-                        className="bg-muted font-mono"
-                        placeholder="Autogenerado"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="age">Edad</Label>
-                      <Input
-                        id="age"
-                        type="number"
-                        min="0"
-                        max="150"
-                        value={clientForm.age}
-                        onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })}
-                        placeholder="Años"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={clientForm.email}
-                        onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
-                        placeholder="correo@ejemplo.com"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Teléfono</Label>
-                      <Input
-                        id="phone"
-                        value={clientForm.phone}
-                        onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
-                        placeholder="Número de teléfono"
-                      />
-                    </div>
+                <div className="grid gap-2 lg:gap-1.5 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                  <div className="space-y-1">
+                    <Label htmlFor="name" className="text-xs">Nombre *</Label>
+                    <Input
+                      id="name"
+                      value={clientForm.name}
+                      onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })}
+                      placeholder="Nombre"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="document" className="text-xs">CI *</Label>
+                    <Input
+                      id="document"
+                      value={clientForm.document}
+                      onChange={(e) => setClientForm({ ...clientForm, document: e.target.value })}
+                      placeholder="Documento"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="clientCode" className="text-xs">Código</Label>
+                    <Input
+                      id="clientCode"
+                      value={clientCode}
+                      readOnly
+                      className="bg-muted font-mono h-8 text-sm"
+                      placeholder="Auto"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="age" className="text-xs">Edad</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min="0"
+                      max="150"
+                      value={clientForm.age}
+                      onChange={(e) => setClientForm({ ...clientForm, age: e.target.value })}
+                      placeholder="Años"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="email" className="text-xs">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={clientForm.email}
+                      onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
+                      placeholder="correo@ej.com"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="phone" className="text-xs">Teléfono</Label>
+                    <Input
+                      id="phone"
+                      value={clientForm.phone}
+                      onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
+                      placeholder="Teléfono"
+                      className="h-8 text-sm"
+                    />
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Seleccionar Paciente</Label>
-                    <select
-                      className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                      value={selectedClientId}
-                      onChange={(e) => setSelectedClientId(e.target.value)}
-                    >
-                      <option value="">Seleccione un paciente...</option>
-                      {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                          {client.clientCode} - {client.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm h-8"
+                    value={selectedClientId}
+                    onChange={(e) => setSelectedClientId(e.target.value)}
+                  >
+                    <option value="">Seleccione un paciente...</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.clientCode} - {client.name}
+                      </option>
+                    ))}
+                  </select>
                   {selectedClientId && (
-                    <div className="p-3 bg-muted rounded-lg">
-                      <Label className="text-xs text-muted-foreground">Código Cliente</Label>
-                      <p className="font-mono font-semibold text-primary">{clientCode}</p>
-                    </div>
+                    <span className="font-mono text-xs font-semibold text-primary whitespace-nowrap">{clientCode}</span>
                   )}
                 </div>
               )}
 
-              {/* Doctor Selection */}
-              <div className="space-y-2 pt-4 border-t">
-                <Label className="flex items-center gap-2">
-                  <Stethoscope className="h-4 w-4 text-primary" />
-                  Doctor (opcional)
-                </Label>
-                <div className="flex gap-2">
+              {/* Doctor & Derivado inline */}
+              <div className="flex gap-2 lg:gap-3 flex-wrap lg:flex-nowrap pt-2 border-t">
+                <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
+                  <Stethoscope className="h-3.5 w-3.5 text-primary shrink-0" />
                   <select
-                    className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-xs h-7"
                     value={selectedDoctorId}
                     onChange={(e) => setSelectedDoctorId(e.target.value)}
                   >
-                    <option value="">Sin doctor asignado</option>
+                    <option value="">Sin doctor</option>
                     {doctors.map((doctor) => (
                       <option key={doctor.id} value={doctor.id}>
                         {doctor.name}
@@ -461,26 +459,20 @@ export default function NewSale() {
                     type="button"
                     variant="outline"
                     size="icon"
+                    className="h-7 w-7"
                     onClick={() => setShowDoctorModal(true)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
-              </div>
-
-              {/* Derivado Selection */}
-              <div className="space-y-2 pt-4 border-t">
-                <Label className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  Derivado (laboratorio externo - opcional)
-                </Label>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-1.5 flex-1 min-w-[180px]">
+                  <Building2 className="h-3.5 w-3.5 text-primary shrink-0" />
                   <select
-                    className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-xs h-7"
                     value={selectedDerivadoId}
                     onChange={(e) => setSelectedDerivadoId(e.target.value)}
                   >
-                    <option value="">Sin derivado (cliente directo)</option>
+                    <option value="">Sin derivado</option>
                     {derivados.map((derivado) => (
                       <option key={derivado.id} value={derivado.id}>
                         {derivado.name}
@@ -491,9 +483,10 @@ export default function NewSale() {
                     type="button"
                     variant="outline"
                     size="icon"
+                    className="h-7 w-7"
                     onClick={() => setShowDerivadoModal(true)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
@@ -502,46 +495,48 @@ export default function NewSale() {
         )}
 
         {/* Tests Section */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-3 lg:gap-2 lg:grid-cols-2 lg:flex-1 lg:min-h-0">
           {/* Left: Test Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                Seleccionar Pruebas
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Derived Price Checkbox */}
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Checkbox
-                  id="useDerivedPrice"
-                  checked={useDerivedPrice}
-                  onCheckedChange={(checked) => setUseDerivedPrice(checked === true)}
-                />
-                <Label htmlFor="useDerivedPrice" className="cursor-pointer">
-                  Usar precios derivados (precios más bajos)
-                </Label>
+          <Card className="lg:flex lg:flex-col lg:overflow-hidden">
+            <CardHeader className="py-2 lg:py-1.5 px-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-1.5 text-sm lg:text-xs">
+                  <ShoppingCart className="h-4 w-4 lg:h-3.5 lg:w-3.5 text-primary" />
+                  Seleccionar Pruebas
+                </CardTitle>
+                <div className="flex items-center gap-1.5">
+                  <Checkbox
+                    id="useDerivedPrice"
+                    checked={useDerivedPrice}
+                    onCheckedChange={(checked) => setUseDerivedPrice(checked === true)}
+                    className="h-3.5 w-3.5"
+                  />
+                  <Label htmlFor="useDerivedPrice" className="cursor-pointer text-xs text-muted-foreground">
+                    Precios derivados
+                  </Label>
+                </div>
               </div>
-
+            </CardHeader>
+            <CardContent className="space-y-2 lg:space-y-1.5 py-2 lg:py-1 px-3 lg:flex lg:flex-col lg:flex-1 lg:min-h-0">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="Buscar pruebas..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-8 h-7 text-xs"
                 />
               </div>
 
               {/* Category Tabs */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1">
                 <Button
                   type="button"
                   variant={activeCategory === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveCategory('all')}
+                  className="h-6 text-xs px-2"
                 >
                   Todas
                 </Button>
@@ -552,6 +547,7 @@ export default function NewSale() {
                     variant={activeCategory === cat.value ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setActiveCategory(cat.value)}
+                    className="h-6 text-xs px-2"
                   >
                     {cat.label}
                   </Button>
@@ -559,11 +555,11 @@ export default function NewSale() {
               </div>
 
               {/* Tests Grid */}
-              <div className="grid gap-3 max-h-[400px] overflow-y-auto">
+              <div className="grid gap-1.5 lg:flex-1 lg:overflow-y-auto max-h-[300px] lg:max-h-none">
                 {filteredTests.map((test) => (
                   <label
                     key={test.id}
-                    className={`flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-all ${
+                    className={`flex items-center gap-2 rounded-md border p-2 lg:p-1.5 cursor-pointer transition-all ${
                       selectedTestIds.includes(test.id)
                         ? 'border-primary bg-primary/5'
                         : 'border-border hover:border-primary/50'
@@ -572,18 +568,15 @@ export default function NewSale() {
                     <Checkbox
                       checked={selectedTestIds.includes(test.id)}
                       onCheckedChange={() => handleTestToggle(test.id)}
+                      className="h-3.5 w-3.5"
                     />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">{test.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex-1 flex items-center justify-between min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{test.name}</p>
+                      <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                         Bs {getTestPrice(test)}
-                        {useDerivedPrice && test.derivedPrice && (
-                          <span className="ml-1 line-through text-xs">Bs {test.price}</span>
-                        )}
                         {test.durationHours && (
-                          <span className="ml-2 text-xs">
-                            <Clock className="inline h-3 w-3 mr-1" />
-                            {test.durationHours}h
+                          <span className="ml-1 text-[10px]">
+                            ({test.durationHours}h)
                           </span>
                         )}
                       </p>
@@ -593,7 +586,7 @@ export default function NewSale() {
               </div>
 
               {filteredTests.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
+                <p className="text-center text-muted-foreground py-4 text-xs">
                   No se encontraron pruebas
                 </p>
               )}
@@ -601,49 +594,46 @@ export default function NewSale() {
           </Card>
 
           {/* Right: Selected Tests with Delivery Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Pruebas Seleccionadas ({selectedTests.length})
+          <Card className="lg:flex lg:flex-col lg:overflow-hidden">
+            <CardHeader className="py-2 lg:py-1.5 px-3">
+              <CardTitle className="flex items-center gap-1.5 text-sm lg:text-xs">
+                <Calendar className="h-4 w-4 lg:h-3.5 lg:w-3.5 text-primary" />
+                Seleccionadas ({selectedTests.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="py-2 lg:py-1 px-3 lg:flex-1 lg:overflow-hidden">
               {selectedTests.length === 0 ? (
-                <p className="text-center text-muted-foreground py-12">
-                  Selecciona pruebas para ver las fechas de entrega
+                <p className="text-center text-muted-foreground py-6 text-xs">
+                  Selecciona pruebas
                 </p>
               ) : (
-                <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                <div className="space-y-1.5 lg:overflow-y-auto lg:max-h-full max-h-[250px]">
                   {selectedTests.map((selected) => {
                     const test = tests.find(t => t.id === selected.testId);
                     if (!test) return null;
                     return (
-                      <div key={selected.testId} className="p-4 border rounded-lg space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="font-medium text-foreground">{test.name}</p>
-                            <p className="text-sm text-muted-foreground">Bs {getTestPrice(test)}</p>
+                      <div key={selected.testId} className="p-2 lg:p-1.5 border rounded-md flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground truncate">{test.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-muted-foreground">Bs {getTestPrice(test)}</span>
+                            <Input
+                              type="datetime-local"
+                              value={selected.deliveryDate}
+                              onChange={(e) => updateDeliveryDate(selected.testId, e.target.value)}
+                              className="h-6 text-[10px] px-1 flex-1"
+                            />
                           </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => removeSelectedTest(selected.testId)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
                         </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Fecha y hora de entrega</Label>
-                          <Input
-                            type="datetime-local"
-                            value={selected.deliveryDate}
-                            onChange={(e) => updateDeliveryDate(selected.testId, e.target.value)}
-                            className="text-sm"
-                          />
-                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 shrink-0"
+                          onClick={() => removeSelectedTest(selected.testId)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
                       </div>
                     );
                   })}
@@ -655,53 +645,40 @@ export default function NewSale() {
 
         {/* Quote Expiration Date - Only for quotes */}
         {mode === 'quote' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Fecha de Vencimiento
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="expirationDate">Fecha de vencimiento de la cotización (opcional)</Label>
-                <Input
-                  id="expirationDate"
-                  type="date"
-                  value={quoteExpirationDate}
-                  onChange={(e) => setQuoteExpirationDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
+            <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+            <Label htmlFor="expirationDate" className="text-xs whitespace-nowrap">Vencimiento:</Label>
+            <Input
+              id="expirationDate"
+              type="date"
+              value={quoteExpirationDate}
+              onChange={(e) => setQuoteExpirationDate(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+              className="h-7 text-xs flex-1 max-w-[160px]"
+            />
+          </div>
         )}
 
-        {/* Summary */}
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total de pruebas seleccionadas</p>
-                <p className="text-lg font-semibold text-foreground">
-                  {selectedTests.length} pruebas
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Total a pagar</p>
-                <p className="text-3xl font-bold text-primary">Bs {calculateTotal()}</p>
-              </div>
+        {/* Summary + Actions */}
+        <div className="flex items-center justify-between gap-4 p-3 lg:p-2 bg-primary/5 border border-primary/20 rounded-lg lg:mt-auto">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Pruebas</p>
+              <p className="text-sm font-semibold text-foreground">{selectedTests.length}</p>
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/')}>
-            Cancelar
-          </Button>
-          <Button type="submit" className="px-8">
-            {mode === 'sale' ? 'Registrar Venta' : 'Registrar Cotización'}
-          </Button>
+            <div>
+              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-xl lg:text-lg font-bold text-primary">Bs {calculateTotal()}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/')} className="h-8 text-xs">
+              Cancelar
+            </Button>
+            <Button type="submit" size="sm" className="h-8 text-xs px-4">
+              {mode === 'sale' ? 'Registrar Venta' : 'Registrar Cotización'}
+            </Button>
+          </div>
         </div>
       </form>
 

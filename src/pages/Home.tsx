@@ -12,142 +12,134 @@ import {
   DollarSign,
   Send
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 const routes = [
-  { 
-    path: '/dashboard', 
-    label: 'Dashboard', 
-    description: 'Resumen general del laboratorio',
-    icon: LayoutDashboard,
-    color: 'from-blue-500 to-blue-600',
-  },
+  // Ventas primero
   { 
     path: '/nueva-venta', 
     label: 'Nueva Venta', 
     description: 'Registrar una nueva orden de pruebas',
     icon: PlusCircle,
-    color: 'from-green-500 to-green-600',
   },
   { 
     path: '/ventas', 
     label: 'Ventas', 
     description: 'Historial de órdenes y ventas',
     icon: ShoppingCart,
-    color: 'from-cyan-500 to-cyan-600',
   },
   { 
     path: '/cotizaciones', 
     label: 'Cotizaciones', 
     description: 'Gestionar presupuestos',
     icon: FileText,
-    color: 'from-violet-500 to-violet-600',
   },
+  // Relacionado a ventas
   { 
     path: '/clientes', 
     label: 'Clientes', 
     description: 'Administrar pacientes',
     icon: Users,
-    color: 'from-teal-500 to-teal-600',
-  },
-  { 
-    path: '/pruebas', 
-    label: 'Pruebas Pendientes', 
-    description: 'Estado de las pruebas activas',
-    icon: FlaskConical,
-    color: 'from-orange-500 to-orange-600',
-  },
-  { 
-    path: '/gestion-pruebas', 
-    label: 'Gestión Pruebas', 
-    description: 'Catálogo de tipos de pruebas',
-    icon: Activity,
-    color: 'from-indigo-500 to-indigo-600',
   },
   { 
     path: '/gestion-doctores', 
     label: 'Gestión Doctores', 
     description: 'Administrar médicos referentes',
     icon: Stethoscope,
-    color: 'from-purple-500 to-purple-600',
   },
   { 
     path: '/gestion-derivados', 
     label: 'Gestión Derivados', 
     description: 'Administrar fuentes de derivación',
     icon: Building2,
-    color: 'from-emerald-500 to-emerald-600',
+  },
+  // Pruebas
+  { 
+    path: '/pruebas', 
+    label: 'Pruebas Pendientes', 
+    description: 'Estado de las pruebas activas',
+    icon: FlaskConical,
   },
   { 
-    path: '/precios-laboratorios', 
-    label: 'Precios Laboratorios', 
-    description: 'Precios por laboratorio externo',
-    icon: DollarSign,
-    color: 'from-amber-500 to-amber-600',
+    path: '/gestion-pruebas', 
+    label: 'Gestión Pruebas', 
+    description: 'Catálogo de tipos de pruebas',
+    icon: Activity,
   },
   { 
     path: '/pruebas-a-enviar', 
     label: 'Pruebas A Enviar', 
     description: 'Pruebas externas pendientes de envío',
     icon: Send,
-    color: 'from-rose-500 to-rose-600',
+  },
+  // Laboratorios y Dashboard
+  { 
+    path: '/precios-laboratorios', 
+    label: 'Precios Laboratorios', 
+    description: 'Precios por laboratorio externo',
+    icon: DollarSign,
+  },
+  { 
+    path: '/dashboard', 
+    label: 'Dashboard', 
+    description: 'Resumen general del laboratorio',
+    icon: LayoutDashboard,
   },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
+  const today = new Date().toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-primary">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-              <Activity className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">LabManager</h1>
-              <p className="text-primary-foreground/80">Sistema de Laboratorio Clínico</p>
-            </div>
-          </div>
+      <header className="bg-gradient-to-b from-primary to-primary/90 text-primary-foreground py-4">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-wide">Laboratorio Clínico Magnus S.R.L.</h1>
+          <p className="text-primary-foreground/80 text-sm mt-2">
+            Av. Oquendo entre Av. Heroinas y calle Colombia acera oeste
+          </p>
+          <p className="text-primary-foreground/80 text-sm">72266960</p>
+          <p className="text-primary-foreground/80 text-sm">Cochabamba - Bolivia</p>
         </div>
       </header>
 
+      {/* Navigation Bar */}
+      <div className="bg-primary/80 border-y border-primary-foreground/20">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex justify-between items-center text-primary-foreground text-sm">
+          <span>Ver.: 1.0.0</span>
+          <span>{today}</span>
+        </div>
+      </div>
+
       {/* Main Content */}
       <main className="max-w-6xl mx-auto p-6">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-foreground">Bienvenido</h2>
-          <p className="text-muted-foreground mt-2">Selecciona una sección para comenzar</p>
-        </div>
-
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
           {routes.map((route) => {
             const Icon = route.icon;
             return (
-              <Card 
+              <div
                 key={route.path}
                 title={route.description}
-                className="group cursor-pointer border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className="bg-white rounded-sm shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-primary/50 aspect-square flex flex-col items-center justify-center p-3 group"
                 onClick={() => navigate(route.path)}
               >
-                <CardContent className="flex flex-col items-center justify-center py-6 px-3">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${route.color} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-center">{route.label}</span>
-                </CardContent>
-              </Card>
+                <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
+                  <Icon className="w-10 h-10 md:w-14 md:h-14 text-primary" strokeWidth={1.5} />
+                </div>
+                <span className="text-xs md:text-sm font-medium text-center text-foreground leading-tight">
+                  {route.label}
+                </span>
+              </div>
             );
           })}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-6">
-        <p className="text-xs text-muted-foreground text-center">
-          © 2024 LabManager - Sistema de Laboratorio Clínico
+      <footer className="mt-auto py-4">
+        <p className="text-xs text-primary-foreground/60 text-center">
+          © 2024 Laboratorio Clínico Magnus S.R.L.
         </p>
       </footer>
     </div>

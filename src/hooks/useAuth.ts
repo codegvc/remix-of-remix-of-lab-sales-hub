@@ -9,7 +9,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (data: LoginFormData): Promise<LoginResponse> => {
-      const response = await api.post<LoginResponse>('/login', data);
+      const response = await api.post<LoginResponse>('/api/login', data);
       return response.data;
     },
     onSuccess: (data) => {

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TEST_CATEGORIES, TestCategory } from '@/types';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, FlaskConical, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, FlaskConical, Search, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -23,14 +23,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useInventarioList, useCreateInventario } from '@/hooks/useInventario';
+import { itemInventarioSchema } from '@/types/inventario';
 
 export default function GestionPruebas() {
   const { tests, addTest, updateTest, deleteTest } = useData();
+  const { data: inventarioItems = [], isLoading: isLoadingInventario } = useInventarioList();
+  const createInventarioMutation = useCreateInventario();
+
   const [activeCategory, setActiveCategory] = useState<TestCategory | 'all'>('all');
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTest, setEditingTest] = useState<string | null>(null);
   const [isExternal, setIsExternal] = useState(false);
+  const [selectedInventarioId, setSelectedInventarioId] = useState<string>('');
+  const [showNewInventarioForm, setShowNewInventarioForm] = useState(false);
+  const [newInventarioForm, setNewInventarioForm] = useState({
+    nombre: '',
+    stock_minimo_alerta: '',
+  });
   const [form, setForm] = useState({
     name: '',
     abbreviation: '',
@@ -74,6 +85,9 @@ export default function GestionPruebas() {
     setForm({ name: '', abbreviation: '', category: 'hematologia', price: '', derivedPrice: '', durationHours: '' });
     setIsExternal(false);
     setEditingTest(null);
+    setSelectedInventarioId('');
+    setShowNewInventarioForm(false);
+    setNewInventarioForm({ nombre: '', stock_minimo_alerta: '' });
     setIsDialogOpen(false);
   };
 
@@ -88,6 +102,8 @@ export default function GestionPruebas() {
     });
     setIsExternal(test.isExternal || false);
     setEditingTest(test.id);
+    setSelectedInventarioId('');
+    setShowNewInventarioForm(false);
     setIsDialogOpen(true);
   };
 
@@ -101,7 +117,33 @@ export default function GestionPruebas() {
     setForm({ name: '', abbreviation: '', category: 'hematologia', price: '', derivedPrice: '', durationHours: '' });
     setIsExternal(false);
     setEditingTest(null);
+    setSelectedInventarioId('');
+    setShowNewInventarioForm(false);
+    setNewInventarioForm({ nombre: '', stock_minimo_alerta: '' });
     setIsDialogOpen(true);
+  };
+
+  const handleCreateInventario = async () => {
+    const parsed = itemInventarioSchema.safeParse({
+      nombre: newInventarioForm.nombre,
+      stock_minimo_alerta: newInventarioForm.stock_minimo_alerta 
+        ? parseInt(newInventarioForm.stock_minimo_alerta) 
+        : null,
+    });
+
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0]?.message || 'Datos inválidos');
+      return;
+    }
+
+    try {
+      const newItem = await createInventarioMutation.mutateAsync(parsed.data);
+      setSelectedInventarioId(String(newItem.id));
+      setShowNewInventarioForm(false);
+      setNewInventarioForm({ nombre: '', stock_minimo_alerta: '' });
+    } catch {
+      // Error already handled in mutation
+    }
   };
 
   return (
@@ -217,6 +259,74 @@ export default function GestionPruebas() {
                     onChange={(e) => setForm({ ...form, durationHours: e.target.value })}
                     placeholder="Ej: 24"
                   />
+                </div>
+
+                {/* Item Inventario Select */}
+                <div className="space-y-2">
+                  <Label>Item de Inventario</Label>
+                  <div className="flex gap-2">
+                    <Select
+                      value={selectedInventarioId}
+                      onValueChange={setSelectedInventarioId}
+                      disabled={isLoadingInventario}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={isLoadingInventario ? "Cargando..." : "Seleccionar item"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {inventarioItems.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowNewInventarioForm(!showNewInventarioForm)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {showNewInventarioForm && (
+                    <div className="p-3 border rounded-lg bg-muted/30 space-y-3 mt-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="newInventarioNombre" className="text-xs">Nombre del item</Label>
+                        <Input
+                          id="newInventarioNombre"
+                          value={newInventarioForm.nombre}
+                          onChange={(e) => setNewInventarioForm({ ...newInventarioForm, nombre: e.target.value })}
+                          placeholder="Ej: Tubos de ensayo"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="newInventarioStock" className="text-xs">Stock mínimo alerta</Label>
+                        <Input
+                          id="newInventarioStock"
+                          type="number"
+                          min="0"
+                          value={newInventarioForm.stock_minimo_alerta}
+                          onChange={(e) => setNewInventarioForm({ ...newInventarioForm, stock_minimo_alerta: e.target.value })}
+                          placeholder="Ej: 10"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleCreateInventario}
+                        disabled={createInventarioMutation.isPending}
+                        className="w-full"
+                      >
+                        {createInventarioMutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                        Agregar Item
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

@@ -10,7 +10,8 @@ import {
   Building2,
   Activity,
   DollarSign,
-  Send
+  Send,
+  Package
 } from 'lucide-react';
 
 const routes = [
@@ -77,6 +78,12 @@ const routes = [
     label: 'Precios Laboratorios', 
     description: 'Precios por laboratorio externo',
     icon: DollarSign,
+  },
+  { 
+    path: '/item-inventario', 
+    label: 'Item Inventario', 
+    description: 'Gestión de items de inventario',
+    icon: Package,
   },
   { 
     path: '/dashboard', 

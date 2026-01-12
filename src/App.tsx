@@ -18,6 +18,7 @@ import GestionDerivados from "./pages/GestionDerivados";
 import PreciosLaboratorios from "./pages/PreciosLaboratorios";
 import PruebasAEnviar from "./pages/PruebasAEnviar";
 import Quotes from "./pages/Quotes";
+import ItemInventario from "./pages/ItemInventario";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/precios-laboratorios" element={<PreciosLaboratorios />} />
             <Route path="/pruebas-a-enviar" element={<PruebasAEnviar />} />
             <Route path="/cotizaciones" element={<Quotes />} />
+            <Route path="/item-inventario" element={<ItemInventario />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Package, Search, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, Search, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import {
   useUpdateInventario,
   useDeleteInventario,
 } from '@/hooks/useInventario';
+import { useLotesByItem } from '@/hooks/useLotes';
 import { ItemInventario, itemInventarioSchema } from '@/types/inventario';
 
 export default function ItemInventarioPage() {
@@ -30,6 +31,7 @@ export default function ItemInventarioPage() {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemInventario | null>(null);
+  const [expandedItemId, setExpandedItemId] = useState<number | null>(null);
   const [form, setForm] = useState({
     nombre: '',
     stock_minimo_alerta: '',
@@ -168,29 +170,17 @@ export default function ItemInventarioPage() {
             ) : filteredItems.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No se encontraron items</p>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="space-y-3">
                 {filteredItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between py-4">
-                    <div>
-                      <p className="font-medium text-foreground">{item.nombre}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Stock mínimo: {item.stock_minimo_alerta ?? 'No definido'}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(item.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    isExpanded={expandedItemId === item.id}
+                    onToggle={() => setExpandedItemId(expandedItemId === item.id ? null : item.id)}
+                    onEdit={() => handleEdit(item)}
+                    onDelete={() => handleDelete(item.id)}
+                    isDeleting={deleteMutation.isPending}
+                  />
                 ))}
               </div>
             )}
@@ -198,5 +188,96 @@ export default function ItemInventarioPage() {
         </Card>
       </div>
     </PageLayout>
+  );
+}
+
+interface ItemCardProps {
+  item: ItemInventario;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  isDeleting: boolean;
+}
+
+function ItemCard({ item, isExpanded, onToggle, onEdit, onDelete, isDeleting }: ItemCardProps) {
+  const { data: lotes = [], isLoading } = useLotesByItem(isExpanded ? item.id : null);
+
+  const totalStock = lotes.reduce((acc, lote) => acc + (lote.cantidad_comprada - lote.cantidad_consumida), 0);
+
+  return (
+    <div className="border border-border rounded-lg overflow-hidden">
+      <div className="flex items-center justify-between p-4 bg-muted/30">
+        <div className="flex-1">
+          <p className="font-medium text-foreground">{item.nombre}</p>
+          <div className="flex gap-4 text-sm text-muted-foreground">
+            <span>Stock mínimo: {item.stock_minimo_alerta ?? 'No definido'}</span>
+            {isExpanded && <span>Stock actual: {totalStock}</span>}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon" onClick={onEdit}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onDelete} disabled={isDeleting}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onToggle}>
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="p-4 bg-background border-t border-border">
+          <h4 className="font-medium text-sm mb-3">Lotes ({lotes.length})</h4>
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : lotes.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4 text-sm">
+              No hay lotes registrados para este item
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {lotes.map((lote) => {
+                const stockDisponible = lote.cantidad_comprada - lote.cantidad_consumida;
+                const isLowStock = item.stock_minimo_alerta && stockDisponible <= item.stock_minimo_alerta;
+
+                return (
+                  <div
+                    key={lote.id}
+                    className={`p-3 rounded-lg text-sm ${
+                      isLowStock ? 'bg-destructive/10 border border-destructive/30' : 'bg-muted/20'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">Lote: {lote.lote}</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                          <span>
+                            Stock: {stockDisponible}/{lote.cantidad_comprada}
+                            {isLowStock && <span className="text-destructive ml-1">(Bajo)</span>}
+                          </span>
+                          <span>C.Unit: Bs. {lote.costo_unitario.toFixed(2)}</span>
+                          <span>P.Unit: Bs. {lote.precio_unitario.toFixed(2)}</span>
+                          {lote.fecha_vencimiento && (
+                            <span>Vence: {new Date(lote.fecha_vencimiento).toLocaleDateString('es-BO')}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {lote.observaciones && (
+                      <p className="text-xs text-muted-foreground mt-2">{lote.observaciones}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -11,7 +11,8 @@ import {
   Activity,
   DollarSign,
   Send,
-  Package
+  Package,
+  ShoppingBag,
 } from 'lucide-react';
 
 const routes = [
@@ -84,6 +85,12 @@ const routes = [
     label: 'Item Inventario', 
     description: 'Gestión de items de inventario',
     icon: Package,
+  },
+  { 
+    path: '/compras', 
+    label: 'Compras', 
+    description: 'Gestión de compras y lotes',
+    icon: ShoppingBag,
   },
   { 
     path: '/dashboard', 

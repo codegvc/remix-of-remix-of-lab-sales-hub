@@ -629,7 +629,7 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
             <div>
               <p className="font-semibold text-foreground">{compra.proveedor || 'Sin proveedor'}</p>
               <p className="text-sm text-muted-foreground">
-                {compra.fecha_compra ? new Date(compra.fecha_compra).toLocaleDateString('es-BO') : 'Sin fecha'} • Bs. {compra.monto_total.toFixed(2)}
+                {compra.fecha_compra ? new Date(compra.fecha_compra).toLocaleDateString('es-BO') : 'Sin fecha'} • Bs. {Number(compra.monto_total).toFixed(2)}
               </p>
             </div>
           </div>

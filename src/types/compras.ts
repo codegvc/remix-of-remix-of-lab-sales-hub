@@ -35,10 +35,25 @@ export interface Lote {
 }
 
 export const compraSchema = z.object({
-  fecha_compra: z.string().min(1, 'La fecha de compra es requerida'),
+  fecha_compra: z.string().nullable().optional(),
   monto_total: z.number().min(0, 'El monto debe ser mayor o igual a 0'),
-  proveedor: z.string().min(1, 'El proveedor es requerido').max(255),
+  proveedor: z.string().max(255).nullable().optional(),
   observaciones: z.string().max(1000).nullable().optional(),
+});
+
+export const loteInputSchema = z.object({
+  cantidad_comprada: z.number().int().min(1, 'Cantidad mínima es 1'),
+  cantidad_consumida: z.number().int().min(0).default(0),
+  costo_total: z.number().min(0, 'El costo debe ser mayor o igual a 0'),
+  costo_unitario: z.number().min(0, 'El costo unitario debe ser mayor o igual a 0'),
+  precio_unitario: z.number().min(0, 'El precio unitario debe ser mayor o igual a 0'),
+  fecha_ingreso: z.string().min(1, 'La fecha de ingreso es requerida'),
+  fecha_terminado: z.string().nullable().optional(),
+  fecha_vencimiento: z.string().nullable().optional(),
+  lote: z.string().min(1, 'El número de lote es requerido').max(100),
+  observaciones: z.string().max(1000).nullable().optional(),
+  alerta_vencimiento: z.number().int().min(0).nullable().optional(),
+  item_inventario_id: z.number().int().min(1, 'Debe seleccionar un item de inventario'),
 });
 
 export const loteSchema = z.object({
@@ -57,5 +72,15 @@ export const loteSchema = z.object({
   item_inventario_id: z.number().int().min(1, 'Debe seleccionar un item de inventario'),
 });
 
+export const compraConLotesSchema = z.object({
+  fecha_compra: z.string().nullable().optional(),
+  monto_total: z.number().min(0, 'El monto debe ser mayor o igual a 0'),
+  proveedor: z.string().max(255).nullable().optional(),
+  observaciones: z.string().max(1000).nullable().optional(),
+  lotes: z.array(loteInputSchema).optional(),
+});
+
 export type CompraFormData = z.infer<typeof compraSchema>;
 export type LoteFormData = z.infer<typeof loteSchema>;
+export type LoteInputData = z.infer<typeof loteInputSchema>;
+export type CompraConLotesFormData = z.infer<typeof compraConLotesSchema>;

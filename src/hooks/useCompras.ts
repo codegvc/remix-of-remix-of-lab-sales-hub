@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
-import { Compra, CompraFormData } from '@/types/compras';
+import { Compra, CompraFormData, CompraConLotesFormData } from '@/types/compras';
 import { toast } from 'sonner';
 
 const ENDPOINT = '/api/compras';
@@ -30,12 +30,13 @@ export function useCreateCompra() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CompraFormData): Promise<Compra> => {
-      const response = await api.post<Compra>(ENDPOINT, data);
-      return response.data;
+    mutationFn: async (data: CompraConLotesFormData): Promise<Compra> => {
+      const response = await api.post<{ data: Compra }>(ENDPOINT, data);
+      return response.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['compras'] });
+      queryClient.invalidateQueries({ queryKey: ['lotes'] });
       toast.success('Compra creada exitosamente');
     },
     onError: (error: any) => {

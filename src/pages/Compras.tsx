@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
   Package,
+  X,
 } from 'lucide-react';
 import {
   Dialog,
@@ -43,7 +44,37 @@ import {
   useDeleteLote,
 } from '@/hooks/useLotes';
 import { useInventarioList } from '@/hooks/useInventario';
-import { Compra, compraSchema, Lote, loteSchema } from '@/types/compras';
+import { Compra, compraConLotesSchema, Lote, loteSchema, LoteInputData, loteInputSchema } from '@/types/compras';
+
+interface LoteFormState {
+  cantidad_comprada: string;
+  cantidad_consumida: string;
+  costo_total: string;
+  costo_unitario: string;
+  precio_unitario: string;
+  fecha_ingreso: string;
+  fecha_terminado: string;
+  fecha_vencimiento: string;
+  lote: string;
+  observaciones: string;
+  alerta_vencimiento: string;
+  item_inventario_id: string;
+}
+
+const emptyLoteForm = (): LoteFormState => ({
+  cantidad_comprada: '',
+  cantidad_consumida: '0',
+  costo_total: '',
+  costo_unitario: '',
+  precio_unitario: '',
+  fecha_ingreso: new Date().toISOString().split('T')[0],
+  fecha_terminado: '',
+  fecha_vencimiento: '',
+  lote: '',
+  observaciones: '',
+  alerta_vencimiento: '',
+  item_inventario_id: '',
+});
 
 export default function ComprasPage() {
   const { data: compras = [], isLoading } = useComprasList();
@@ -56,28 +87,83 @@ export default function ComprasPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompra, setEditingCompra] = useState<Compra | null>(null);
   const [expandedCompraId, setExpandedCompraId] = useState<number | null>(null);
+  
+  // Form de compra
   const [form, setForm] = useState({
     fecha_compra: new Date().toISOString().split('T')[0],
     monto_total: '',
     proveedor: '',
     observaciones: '',
   });
+  
+  // Lotes a agregar en la compra nueva
+  const [lotesForm, setLotesForm] = useState<LoteFormState[]>([]);
+  const [currentLoteForm, setCurrentLoteForm] = useState<LoteFormState>(emptyLoteForm());
 
   const filteredCompras = compras.filter(
     (c) =>
-      c.proveedor.toLowerCase().includes(search.toLowerCase()) ||
-      c.fecha_compra.includes(search)
+      c.proveedor?.toLowerCase().includes(search.toLowerCase()) ||
+      c.fecha_compra?.includes(search)
   );
+
+  const addLoteToList = () => {
+    const parsed = loteInputSchema.safeParse({
+      cantidad_comprada: parseInt(currentLoteForm.cantidad_comprada) || 0,
+      cantidad_consumida: parseInt(currentLoteForm.cantidad_consumida) || 0,
+      costo_total: parseFloat(currentLoteForm.costo_total) || 0,
+      costo_unitario: parseFloat(currentLoteForm.costo_unitario) || 0,
+      precio_unitario: parseFloat(currentLoteForm.precio_unitario) || 0,
+      fecha_ingreso: currentLoteForm.fecha_ingreso,
+      fecha_terminado: currentLoteForm.fecha_terminado || null,
+      fecha_vencimiento: currentLoteForm.fecha_vencimiento || null,
+      lote: currentLoteForm.lote,
+      observaciones: currentLoteForm.observaciones || null,
+      alerta_vencimiento: currentLoteForm.alerta_vencimiento ? parseInt(currentLoteForm.alerta_vencimiento) : null,
+      item_inventario_id: parseInt(currentLoteForm.item_inventario_id) || 0,
+    });
+
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0]?.message || 'Datos del lote inválidos');
+      return;
+    }
+
+    setLotesForm([...lotesForm, currentLoteForm]);
+    setCurrentLoteForm(emptyLoteForm());
+    toast.success('Lote agregado a la lista');
+  };
+
+  const removeLoteFromList = (index: number) => {
+    setLotesForm(lotesForm.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsed = compraSchema.safeParse({
-      fecha_compra: form.fecha_compra,
+    // Convertir lotes del formulario a formato de envío
+    const lotesData: LoteInputData[] = lotesForm.map(lf => ({
+      cantidad_comprada: parseInt(lf.cantidad_comprada) || 0,
+      cantidad_consumida: parseInt(lf.cantidad_consumida) || 0,
+      costo_total: parseFloat(lf.costo_total) || 0,
+      costo_unitario: parseFloat(lf.costo_unitario) || 0,
+      precio_unitario: parseFloat(lf.precio_unitario) || 0,
+      fecha_ingreso: lf.fecha_ingreso,
+      fecha_terminado: lf.fecha_terminado || null,
+      fecha_vencimiento: lf.fecha_vencimiento || null,
+      lote: lf.lote,
+      observaciones: lf.observaciones || null,
+      alerta_vencimiento: lf.alerta_vencimiento ? parseInt(lf.alerta_vencimiento) : null,
+      item_inventario_id: parseInt(lf.item_inventario_id) || 0,
+    }));
+
+    const dataToSend = {
+      fecha_compra: form.fecha_compra || null,
       monto_total: parseFloat(form.monto_total) || 0,
-      proveedor: form.proveedor,
+      proveedor: form.proveedor || null,
       observaciones: form.observaciones || null,
-    });
+      lotes: lotesData.length > 0 ? lotesData : undefined,
+    };
+
+    const parsed = compraConLotesSchema.safeParse(dataToSend);
 
     if (!parsed.success) {
       toast.error(parsed.error.errors[0]?.message || 'Datos inválidos');
@@ -86,7 +172,16 @@ export default function ComprasPage() {
 
     try {
       if (editingCompra) {
-        await updateCompra.mutateAsync({ id: editingCompra.id, data: parsed.data });
+        // Al editar no enviamos lotes (se manejan por separado)
+        await updateCompra.mutateAsync({ 
+          id: editingCompra.id, 
+          data: {
+            fecha_compra: form.fecha_compra || null,
+            monto_total: parseFloat(form.monto_total) || 0,
+            proveedor: form.proveedor || null,
+            observaciones: form.observaciones || null,
+          }
+        });
       } else {
         await createCompra.mutateAsync(parsed.data);
       }
@@ -104,16 +199,19 @@ export default function ComprasPage() {
       proveedor: '',
       observaciones: '',
     });
+    setLotesForm([]);
+    setCurrentLoteForm(emptyLoteForm());
     setEditingCompra(null);
   };
 
   const handleEdit = (compra: Compra) => {
     setForm({
-      fecha_compra: compra.fecha_compra.split('T')[0],
+      fecha_compra: compra.fecha_compra?.split('T')[0] || '',
       monto_total: compra.monto_total.toString(),
-      proveedor: compra.proveedor,
+      proveedor: compra.proveedor || '',
       observaciones: compra.observaciones || '',
     });
+    setLotesForm([]); // Al editar no se muestran lotes en el form
     setEditingCompra(compra);
     setIsDialogOpen(true);
   };
@@ -129,6 +227,8 @@ export default function ComprasPage() {
   };
 
   const isPending = createCompra.isPending || updateCompra.isPending;
+
+  const getItemName = (id: number) => items.find(i => i.id === id)?.nombre || 'Desconocido';
 
   return (
     <PageLayout title="Compras" subtitle="Gestión de compras y lotes de inventario">
@@ -155,66 +255,242 @@ export default function ComprasPage() {
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingCompra ? 'Editar Compra' : 'Nueva Compra'}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Datos de la compra */}
+              <div className="space-y-4">
+                <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Datos de la Compra</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fecha_compra">Fecha Compra</Label>
+                    <Input
+                      id="fecha_compra"
+                      type="date"
+                      value={form.fecha_compra}
+                      onChange={(e) => setForm({ ...form, fecha_compra: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="monto_total">
+                      Monto Total <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="monto_total"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.monto_total}
+                      onChange={(e) => setForm({ ...form, monto_total: e.target.value })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="fecha_compra">
-                    Fecha Compra <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="proveedor">Proveedor</Label>
                   <Input
-                    id="fecha_compra"
-                    type="date"
-                    value={form.fecha_compra}
-                    onChange={(e) => setForm({ ...form, fecha_compra: e.target.value })}
+                    id="proveedor"
+                    value={form.proveedor}
+                    onChange={(e) => setForm({ ...form, proveedor: e.target.value })}
+                    placeholder="Nombre del proveedor"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="monto_total">
-                    Monto Total <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="monto_total"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.monto_total}
-                    onChange={(e) => setForm({ ...form, monto_total: e.target.value })}
-                    placeholder="0.00"
+                  <Label htmlFor="observaciones">Observaciones</Label>
+                  <Textarea
+                    id="observaciones"
+                    value={form.observaciones}
+                    onChange={(e) => setForm({ ...form, observaciones: e.target.value })}
+                    placeholder="Notas adicionales..."
+                    rows={2}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="proveedor">
-                  Proveedor <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="proveedor"
-                  value={form.proveedor}
-                  onChange={(e) => setForm({ ...form, proveedor: e.target.value })}
-                  placeholder="Nombre del proveedor"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="observaciones">Observaciones</Label>
-                <Textarea
-                  id="observaciones"
-                  value={form.observaciones}
-                  onChange={(e) => setForm({ ...form, observaciones: e.target.value })}
-                  placeholder="Notas adicionales..."
-                  rows={3}
-                />
-              </div>
-              <div className="flex justify-end gap-3">
+
+              {/* Sección de lotes - solo para nueva compra */}
+              {!editingCompra && (
+                <div className="space-y-4 border-t pt-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                      Lotes ({lotesForm.length})
+                    </h3>
+                  </div>
+
+                  {/* Lista de lotes agregados */}
+                  {lotesForm.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      {lotesForm.map((lf, index) => (
+                        <div 
+                          key={index} 
+                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border"
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{getItemName(parseInt(lf.item_inventario_id))}</p>
+                            <div className="flex flex-wrap gap-x-4 text-xs text-muted-foreground mt-1">
+                              <span>Lote: {lf.lote}</span>
+                              <span>Cant: {lf.cantidad_comprada}</span>
+                              <span>C.Unit: Bs. {parseFloat(lf.costo_unitario || '0').toFixed(2)}</span>
+                              <span>P.Unit: Bs. {parseFloat(lf.precio_unitario || '0').toFixed(2)}</span>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeLoteFromList(index)}
+                          >
+                            <X className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Formulario para agregar lote */}
+                  <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
+                    <h4 className="font-medium text-sm">Agregar Nuevo Lote</h4>
+                    
+                    <div className="space-y-2">
+                      <Label>
+                        Item Inventario <span className="text-destructive">*</span>
+                      </Label>
+                      <Select
+                        value={currentLoteForm.item_inventario_id}
+                        onValueChange={(v) => setCurrentLoteForm({ ...currentLoteForm, item_inventario_id: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar item..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {items.map((item) => (
+                            <SelectItem key={item.id} value={item.id.toString()}>
+                              {item.nombre}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>
+                          Número de Lote <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          value={currentLoteForm.lote}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, lote: e.target.value })}
+                          placeholder="Ej: LOT-2026-001"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>
+                          Cantidad Comprada <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={currentLoteForm.cantidad_comprada}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, cantidad_comprada: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Costo Total</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={currentLoteForm.costo_total}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, costo_total: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Costo Unitario</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={currentLoteForm.costo_unitario}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, costo_unitario: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Precio Unitario</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={currentLoteForm.precio_unitario}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, precio_unitario: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>
+                          Fecha Ingreso <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          type="date"
+                          value={currentLoteForm.fecha_ingreso}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, fecha_ingreso: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Fecha Vencimiento</Label>
+                        <Input
+                          type="date"
+                          value={currentLoteForm.fecha_vencimiento}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, fecha_vencimiento: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Alerta (días)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={currentLoteForm.alerta_vencimiento}
+                          onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, alerta_vencimiento: e.target.value })}
+                          placeholder="Ej: 30"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Observaciones del Lote</Label>
+                      <Textarea
+                        value={currentLoteForm.observaciones}
+                        onChange={(e) => setCurrentLoteForm({ ...currentLoteForm, observaciones: e.target.value })}
+                        placeholder="Notas adicionales..."
+                        rows={2}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={addLoteToList}
+                      className="w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar Lote a la Lista
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  {editingCompra ? 'Actualizar' : 'Crear'}
+                  {editingCompra ? 'Actualizar' : 'Crear Compra'}
                 </Button>
               </div>
             </form>
@@ -274,36 +550,10 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
 
   const [isLoteDialogOpen, setIsLoteDialogOpen] = useState(false);
   const [editingLote, setEditingLote] = useState<Lote | null>(null);
-  const [loteForm, setLoteForm] = useState({
-    cantidad_comprada: '',
-    cantidad_consumida: '0',
-    costo_total: '',
-    costo_unitario: '',
-    precio_unitario: '',
-    fecha_ingreso: new Date().toISOString().split('T')[0],
-    fecha_terminado: '',
-    fecha_vencimiento: '',
-    lote: '',
-    observaciones: '',
-    alerta_vencimiento: '',
-    item_inventario_id: '',
-  });
+  const [loteForm, setLoteForm] = useState<LoteFormState>(emptyLoteForm());
 
   const resetLoteForm = () => {
-    setLoteForm({
-      cantidad_comprada: '',
-      cantidad_consumida: '0',
-      costo_total: '',
-      costo_unitario: '',
-      precio_unitario: '',
-      fecha_ingreso: new Date().toISOString().split('T')[0],
-      fecha_terminado: '',
-      fecha_vencimiento: '',
-      lote: '',
-      observaciones: '',
-      alerta_vencimiento: '',
-      item_inventario_id: '',
-    });
+    setLoteForm(emptyLoteForm());
     setEditingLote(null);
   };
 
@@ -377,9 +627,9 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
         <div className="flex-1">
           <div className="flex items-center gap-4">
             <div>
-              <p className="font-semibold text-foreground">{compra.proveedor}</p>
+              <p className="font-semibold text-foreground">{compra.proveedor || 'Sin proveedor'}</p>
               <p className="text-sm text-muted-foreground">
-                {new Date(compra.fecha_compra).toLocaleDateString('es-BO')} • Bs. {compra.monto_total.toFixed(2)}
+                {compra.fecha_compra ? new Date(compra.fecha_compra).toLocaleDateString('es-BO') : 'Sin fecha'} • Bs. {compra.monto_total.toFixed(2)}
               </p>
             </div>
           </div>
@@ -491,22 +741,20 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lote">
+                    <Label>
                       Número de Lote <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="lote"
                       value={loteForm.lote}
                       onChange={(e) => setLoteForm({ ...loteForm, lote: e.target.value })}
                       placeholder="Ej: LOT-2026-001"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cantidad_comprada">
+                    <Label>
                       Cantidad Comprada <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="cantidad_comprada"
                       type="number"
                       min="1"
                       value={loteForm.cantidad_comprada}
@@ -517,9 +765,8 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="costo_total">Costo Total</Label>
+                    <Label>Costo Total</Label>
                     <Input
-                      id="costo_total"
                       type="number"
                       step="0.01"
                       min="0"
@@ -528,9 +775,8 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="costo_unitario">Costo Unitario</Label>
+                    <Label>Costo Unitario</Label>
                     <Input
-                      id="costo_unitario"
                       type="number"
                       step="0.01"
                       min="0"
@@ -539,9 +785,8 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="precio_unitario">Precio Unitario</Label>
+                    <Label>Precio Unitario</Label>
                     <Input
-                      id="precio_unitario"
                       type="number"
                       step="0.01"
                       min="0"
@@ -553,29 +798,26 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fecha_ingreso">
+                    <Label>
                       Fecha Ingreso <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="fecha_ingreso"
                       type="date"
                       value={loteForm.fecha_ingreso}
                       onChange={(e) => setLoteForm({ ...loteForm, fecha_ingreso: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fecha_vencimiento">Fecha Vencimiento</Label>
+                    <Label>Fecha Vencimiento</Label>
                     <Input
-                      id="fecha_vencimiento"
                       type="date"
                       value={loteForm.fecha_vencimiento}
                       onChange={(e) => setLoteForm({ ...loteForm, fecha_vencimiento: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="alerta_vencimiento">Alerta (días)</Label>
+                    <Label>Alerta (días)</Label>
                     <Input
-                      id="alerta_vencimiento"
                       type="number"
                       min="0"
                       value={loteForm.alerta_vencimiento}
@@ -586,9 +828,8 @@ function CompraCard({ compra, items, isExpanded, onToggle, onEdit, onDelete }: C
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lote_observaciones">Observaciones</Label>
+                  <Label>Observaciones</Label>
                   <Textarea
-                    id="lote_observaciones"
                     value={loteForm.observaciones}
                     onChange={(e) => setLoteForm({ ...loteForm, observaciones: e.target.value })}
                     placeholder="Notas adicionales..."
